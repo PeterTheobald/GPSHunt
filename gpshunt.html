@@ -73,16 +73,17 @@ div {
 <script>
 
 // Example: San Francisco Yoda statue outside Lucasfilm
-target_lat='37.7987857';
-target_long='-122.450617';
-success_image='https://upload.wikimedia.org/wikipedia/en/f/ff/SuccessKid.jpg';
-target_size = 10; // distance in feet to target for success
+targetLat='37.7987857';
+targetLong='-122.450617';
+successImage='https://upload.wikimedia.org/wikipedia/en/f/ff/SuccessKid.jpg';
+targetSize = 10; // distance in feet to target for success
 
-// if demo_mode is true, ignore the configured target location
+// if demoMode is true, ignore the configured target location
 // and pick a target approx. 700 feet East of the player's
 // starting position.
 // (assuming lat. 37.8 N, further or closer at different latitudes)
-demo_mode = true;
+demoMode = true;
+demoModeDistance = 0.0003; // approx. 100 feet East at 83N
 
 const options = {
   enableHighAccuracy: true,
@@ -113,36 +114,37 @@ function distance(lat1, lon1, lat2, lon2, unit) {
 	}
 }
 found=false;
-function update_distance(position) {
+function updateDistance(position) {
   if (found) {
     return;
 	}
-  if (demo_mode) {
-	target_lat = position.coords.latitude;
-	// target_long = position.coords.longitude + 0.00242; // approx. 700 feet East at 38N
-	target_long = position.coords.longitude + 0.0003; // approx. 100 feet East at 38N
-	demo_mode = false;
+  if (demoMode) {
+	targetLat = position.coords.latitude;
+	// targetLong = position.coords.longitude + 0.00242; // approx. 700 feet East at 38N
+	targetLong = position.coords.longitude + demoModeDistance; // approx. 100 feet East at 38N
+	demoMode = false;
   }
-  dist=distance(target_lat, target_long, position.coords.latitude, position.coords.longitude, 'f');
-  console.log(target_lat, target_long, position.coords.latitude, position.coords.longitude, 'f', dist.toLocaleString(undefined, {maximumFractionDigits: 0}))
+  dist=distance(targetLat, targetLong, position.coords.latitude, position.coords.longitude, 'f');
+  console.log(targetLat, targetLong, position.coords.latitude, position.coords.longitude, 'f', dist.toLocaleString(undefined, {maximumFractionDigits: 0}))
   //dist=3; // DEBUG
-  if (dist<target_size) {
-	document.getElementById('success-image').src = success_image;
-	document.getElementById("distance-feedback").innerHTML = 'TARGET FOUND';
+  if (dist<targetSize) {
+	document.getElementById('success-image').src = successImage;
+	document.getElementById("distance-feedback").innerHTML = '!';
+	document.getElementById('success-audio').play(); // this won't work on iOS, audio without user pressing a button is forbidden
 	found=true;
 	} else {
 		document.getElementById("distance-feedback").innerHTML = ' ' + dist.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' ';
 	}
 }
-function update_error(error) {
+function updateError(error) {
   document.getElementById("error-feedback").innerHTML = '(Error. You must enable GPS location for this browser)';
 }
 window.onload = function() {
   // do something when the page loads
   //document.getElementById("distance-feedback").style.width = "100%";
   //document.getElementById("distance-feedback").style.height = "100%";
-  navigator.geolocation.getCurrentPosition(update_distance, update_error, options);
-  const id = navigator.geolocation.watchPosition(update_distance, update_error, options);
+  navigator.geolocation.getCurrentPosition(updateDistance, updateError, options);
+  const id = navigator.geolocation.watchPosition(updateDistance, updateError, options);
 };
 </script>
 </head>
@@ -155,5 +157,6 @@ window.onload = function() {
   <div id="error-feedback">
   </div>
 </div>
+<audio id="success-audio" src="https://www.petertheobald.com/downloads/ta-da.mp3" preload="auto"></audio>
 </body>
 </html>
