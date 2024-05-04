@@ -120,8 +120,7 @@ function updateDistance(position) {
 	}
   if (demoMode) {
 	targetLat = position.coords.latitude;
-	// targetLong = position.coords.longitude + 0.00242; // approx. 700 feet East at 38N
-	targetLong = position.coords.longitude + demoModeDistance; // approx. 100 feet East at 38N
+	targetLong = position.coords.longitude + demoModeDistance; // approx. 300 feet East at 38N
 	demoMode = false;
   }
   dist=distance(targetLat, targetLong, position.coords.latitude, position.coords.longitude, 'f');
